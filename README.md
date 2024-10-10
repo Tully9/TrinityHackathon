@@ -1,9 +1,7 @@
 # TrinityHackathon
 Shared Repo for Trinity Hackathon
 
-## Requirements
-
-Ensure you have the following libraries installed before running the script:
+## We need to COOK
 
 ```bash
 ⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⠿⠿⠿⠿⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
