@@ -1,7 +1,7 @@
 # TrinityHackathon
 Shared Repo for Trinity Hackathon
 
-## We need to COOK
+## We need to COOK ‧₊˚ ⋅  𓐐𓎩 ‧₊˚ ⋅
 
 ## ᓚᘏᗢ
 
