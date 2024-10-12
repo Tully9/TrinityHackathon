@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Rental Contracts</title>
+</head>
+<body>
+    <h1>Upload Rental Contracts</h1>
+    <form id="uploadForm">
+        <label for="propertiesCount">Enter number of properties:</label>
+        <input type="number" id="propertiesCount" name="propertiesCount" min="1" required>
+        <button type="button" onclick="generateFileInputs()">Generate File Inputs</button>
+        
+        <div id="fileInputsContainer"></div>
+
+        <button type="submit">Submit</button>
+    </form>
+
+    <div id="responseContainer"></div>
+
+    <script>
+        // Function to generate file inputs based on user input
+        function generateFileInputs() {
+            const propertiesCount = document.getElementById('propertiesCount').value;
+            const fileInputsContainer = document.getElementById('fileInputsContainer');
+            fileInputsContainer.innerHTML = '';
+
+            for (let i = 0; i < propertiesCount; i++) {
+                const fileInput = document.createElement('input');
+                fileInput.type = 'file';
+                fileInput.name = `pdf_${i}`;
+                fileInput.required = true;
+                fileInputsContainer.appendChild(fileInput);
+                fileInputsContainer.appendChild(document.createElement('br'));
+            }
+        }
+
+        // Handle form submission
+        document.getElementById('uploadForm').addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            const formData = new FormData();
+            const propertiesCount = document.getElementById('propertiesCount').value;
+
+            // Add all file inputs to formData
+            for (let i = 0; i < propertiesCount; i++) {
+                const fileInput = document.querySelector(`input[name="pdf_${i}"]`);
+                if (fileInput.files.length > 0) {
+                    formData.append(`pdf_${i}`, fileInput.files[0]);
+                }
+            }
+
+            // Send the form data to the Flask API
+            try {
+                const response = await fetch('/api/submit', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+
+                const result = await response.json();
+                document.getElementById('responseContainer').innerText = `Summary: ${result.summary}`;
+            } catch (error) {
+                document.getElementById('responseContainer').innerText = `An error occurred: ${error.message}`;
+            }
+        });
+    </script>
+</body>
+</html>
