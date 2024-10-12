@@ -4,17 +4,44 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Upload PDF for Analysis</title>
+    <style>
+        .pdf-input {
+            margin-bottom: 10px;
+        }
+        .output {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-top: 20px;
+        }
+        .summary {
+            margin-top: 10px;
+            padding: 5px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+        }
+    </style>
 </head>
 <body>
-    <h1>Rent Wizard - Upload a PDF Contract</h1>
+    <h1>Rent Wizard - Upload PDF Contracts</h1>
     <form id="pdfForm" enctype="multipart/form-data">
-        <label for="pdfFile">Upload PDF:</label>
-        <input type="file" id="pdfFile" name="pdf" accept="application/pdf" required>
-        <button type="submit">Submit</button>
+        <div class="pdf-input">
+            <label for="pdfFile1">Upload PDF 1:</label>
+            <input type="file" id="pdfFile1" name="pdf" accept="application/pdf" required>
+        </div>
+        <div class="pdf-input">
+            <label for="pdfFile2">Upload PDF 2:</label>
+            <input type="file" id="pdfFile2" name="pdf" accept="application/pdf" required>
+        </div>
+        <div class="pdf-input">
+            <label for="pdfFile3">Upload PDF 3:</label>
+            <input type="file" id="pdfFile3" name="pdf" accept="application/pdf" required>
+        </div>
+        <button type="submit">Submit All</button>
     </form>
 
-    <div id="response">
-        <!-- The AI's response will be displayed here -->
+    <div id="response" class="output">
+        <h2>AI Summaries:</h2>
+        <div id="summariesContainer"></div>
     </div>
 
     <script>
@@ -22,8 +49,18 @@
             event.preventDefault();
 
             const formData = new FormData();
-            const pdfFile = document.getElementById('pdfFile').files[0];
-            formData.append('pdf', pdfFile);
+            const pdfFiles = [
+                document.getElementById('pdfFile1').files[0],
+                document.getElementById('pdfFile2').files[0],
+                document.getElementById('pdfFile3').files[0]
+            ];
+
+            // Append all selected files to FormData
+            pdfFiles.forEach((file) => {
+                if (file) {
+                    formData.append('pdf', file);
+                }
+            });
 
             try {
                 const response = await fetch('/api/submit', {
@@ -32,9 +69,21 @@
                 });
 
                 const result = await response.json();
-                document.getElementById('response').innerText = result.summary || result.error || "No response received";
+                const summariesContainer = document.getElementById('summariesContainer');
+                summariesContainer.innerHTML = ''; // Clear previous summaries
+
+                if (result.summaries) {
+                    result.summaries.forEach((summary, index) => {
+                        const summaryDiv = document.createElement('div');
+                        summaryDiv.classList.add('summary');
+                        summaryDiv.innerHTML = `<h3>Summary for PDF ${index + 1}:</h3><p>${summary}</p>`;
+                        summariesContainer.appendChild(summaryDiv);
+                    });
+                } else {
+                    summariesContainer.innerHTML = result.error || "No response received";
+                }
             } catch (error) {
-                document.getElementById('response').innerText = "An error occurred: " + error.message;
+                document.getElementById('summariesContainer').innerText = "An error occurred: " + error.message;
             }
         });
     </script>
