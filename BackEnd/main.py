@@ -10,21 +10,21 @@ CORS(app)
 YOUR_API_KEY = "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"
 client = OpenAI(api_key=YOUR_API_KEY, base_url="https://api.perplexity.ai")
 
-# Open the PDFs
+# Open the PDF
 def OpenPDF(properties_amount, contracts, perplexity_inputs):
     for property in range(properties_amount):
         with open(contracts[property], 'rb') as file:
             reader = PyPDF2.PdfReader(file)
             text = ''.join(page.extract_text() for page in reader.pages)
             perplexity_inputs.append(text)
-    return perplexity_inputs
+    return perplexity_inputs[0]
 
 # AI Interaction logic remains unchanged
 def get_perplexity_response(input_string):
     messages = [
         {
             "role": "system",
-            "content": "You are Rent Wizard, an AI application to help users with renting. Please read the contract information and summarize everything of importance in the contract."
+            "content": "You are Rent Wizard, an AI application to help users with renting. Please read the contract information and summarise everything of importance in the contract."
         },
         {
             "role": "user",
@@ -46,28 +46,24 @@ def get_perplexity_response(input_string):
 def index():
     return render_template('index.html')
 
-
-# Route for handling multiple PDF uploads and processing
+# Route for handling PDF upload and processing
 @app.route('/api/submit', methods=['POST'])
 def submit():
-    contracts = []
+    if 'pdf' not in request.files:
+        return jsonify({"error": "No PDF file uploaded"}), 400
+
+    pdf_file = request.files['pdf']
+    contracts = ['sample.pdf']
+    pdf_file.save(contracts[0])  # Save the uploaded PDF for processing
+
+    properties_amount = 1
     perplexity_inputs = []
-
-    # Save each uploaded PDF and add its path to the contracts list
-    for key in request.files:
-        pdf_file = request.files[key]
-        pdf_path = f"uploads/{pdf_file.filename}"
-        pdf_file.save(pdf_path)
-        contracts.append(pdf_path)
-
-    properties_amount = len(contracts)
     
-    # Process the uploaded PDFs and extract text
-    extracted_texts = OpenPDF(properties_amount, contracts, perplexity_inputs)
+    # Process the uploaded PDF
+    extracted_text = OpenPDF(properties_amount, contracts, perplexity_inputs)
     
-    # Concatenate the extracted text from all PDFs and get a summary
-    combined_text = "\n\n".join(extracted_texts)
-    summary = get_perplexity_response(combined_text)
+    # Get the AI's response using the extracted text
+    summary = get_perplexity_response(extracted_text)
     
     return jsonify({"summary": summary}), 200
 
