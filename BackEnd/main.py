@@ -65,12 +65,12 @@ def get_perplexity_response(input_string):
         return f"An error occurred: {str(e)}"
 
 
+def test(properties_amount, perplexity_inputs):
+    #Add the user inputs to the messages
+    for property in range(properties_amount):
 
-#Add the user inputs to the messages
-for property in range(properties_amount):
-
-    output = get_perplexity_response(perplexity_inputs[property])
-    print(output)
+        output = get_perplexity_response(perplexity_inputs[property])
+        print(output)
 
 
 @app.route('/api/submit', methods=['POST'])
@@ -92,6 +92,7 @@ def submit():
     # Calls functions
     print("Calling functions ...")
     PDF_text = OpenPDF(properties_amount, contracts, perplexity_inputs) # Don't need
+    print = test(properties_amount, perplexity_inputs)
 
 
 
