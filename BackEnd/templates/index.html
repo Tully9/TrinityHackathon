@@ -5,37 +5,117 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Upload PDF for Analysis</title>
     <style>
-        .pdf-input {
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f7f6;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        h1 {
+            font-size: 2rem;
+            color: #4a90e2;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        form {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        label {
+            display: block;
+            font-size: 1rem;
+            color: #555;
+            margin-bottom: 8px;
+        }
+
+        input[type="number"], input[type="file"] {
+            width: 100%;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            font-size: 1rem;
+            background-color: #f9f9f9;
+            margin-bottom: 15px;
+        }
+
+        button[type="submit"] {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            background-color: #4a90e2;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #357abd;
+        }
+
+        .output {
+            margin-top: 30px;
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            color: #4a90e2;
+            margin-bottom: 15px;
+        }
+
+        .summary {
+            background-color: #f1f7ff;
+            padding: 15px;
+            margin-top: 15px;
+            border-left: 4px solid #4a90e2;
+            border-radius: 5px;
+        }
+
+        .summary h3 {
+            font-size: 1.2rem;
+            color: #333;
             margin-bottom: 10px;
         }
-        .output {
-            border: 1px solid #ccc;
-            padding: 10px;
-            margin-top: 20px;
-        }
-        .summary {
-            margin-top: 10px;
-            padding: 5px;
-            background-color: #f9f9f9;
-            border: 1px solid #ddd;
+
+        .summary p {
+            font-size: 1rem;
+            color: #666;
         }
     </style>
 </head>
 <body>
     <h1>Rent Wizard - Upload PDF Contracts</h1>
-    <form id="pdfForm" enctype="multipart/form-data">
-        <div class="pdf-input">
-            <label for="pdfFile1">Upload PDF 1:</label>
-            <input type="file" id="pdfFile1" name="pdf" accept="application/pdf" required>
-        </div>
-        <div class="pdf-input">
-            <label for="pdfFile2">Upload PDF 2:</label>
-            <input type="file" id="pdfFile2" name="pdf" accept="application/pdf" required>
-        </div>
-        <div class="pdf-input">
-            <label for="pdfFile3">Upload PDF 3:</label>
-            <input type="file" id="pdfFile3" name="pdf" accept="application/pdf" required>
-        </div>
+
+    <form id="numberForm">
+        <label for="pdfCount">Choose the number of PDFs to upload (1-10):</label>
+        <input type="number" id="pdfCount" name="pdfCount" min="1" max="10" required>
+        <button type="button" id="generateFieldsBtn">Generate Upload Fields</button>
+    </form>
+
+    <form id="pdfForm" enctype="multipart/form-data" style="display: none;">
+        <div id="fileInputsContainer"></div>
         <button type="submit">Submit All</button>
     </form>
 
@@ -45,38 +125,76 @@
     </div>
 
     <script>
-        document.getElementById('pdfForm').addEventListener('submit', async function(event) {
+        const numberForm = document.getElementById('numberForm');
+        const generateFieldsBtn = document.getElementById('generateFieldsBtn');
+        const fileInputsContainer = document.getElementById('fileInputsContainer');
+        const pdfForm = document.getElementById('pdfForm');
+    
+        generateFieldsBtn.addEventListener('click', function() {
+            const pdfCount = parseInt(document.getElementById('pdfCount').value);
+    
+            // Clear any existing input fields
+            fileInputsContainer.innerHTML = '';
+    
+            if (isNaN(pdfCount) || pdfCount < 1 || pdfCount > 10) {
+                alert('Please enter a number between 1 and 10.');
+                return;
+            }
+    
+            // Generate the required number of file input fields
+            for (let i = 1; i <= pdfCount; i++) {
+                const pdfInputDiv = document.createElement('div');
+                pdfInputDiv.classList.add('pdf-input');
+    
+                const label = document.createElement('label');
+                label.setAttribute('for', `pdfFile${i}`);
+                label.textContent = `Upload PDF ${i}:`;
+    
+                const input = document.createElement('input');
+                input.setAttribute('type', 'file');
+                input.setAttribute('id', `pdfFile${i}`);
+                input.setAttribute('name', 'pdf');
+                input.setAttribute('accept', 'application/pdf');
+                input.setAttribute('required', true);
+    
+                pdfInputDiv.appendChild(label);
+                pdfInputDiv.appendChild(input);
+                fileInputsContainer.appendChild(pdfInputDiv);
+            }
+    
+            // Show the file upload form after the fields are generated
+            pdfForm.style.display = 'block';
+        });
+    
+        pdfForm.addEventListener('submit', async function(event) {
             event.preventDefault();
-
+    
             const formData = new FormData();
-            const pdfFiles = [
-                document.getElementById('pdfFile1').files[0],
-                document.getElementById('pdfFile2').files[0],
-                document.getElementById('pdfFile3').files[0]
-            ];
-
+            const pdfInputs = fileInputsContainer.querySelectorAll('input[type="file"]');
+    
             // Append all selected files to FormData
-            pdfFiles.forEach((file) => {
-                if (file) {
-                    formData.append('pdf', file);
+            pdfInputs.forEach((input) => {
+                if (input.files[0]) {
+                    formData.append('pdf', input.files[0]);
                 }
             });
-
+    
             try {
                 const response = await fetch('/api/submit', {
                     method: 'POST',
                     body: formData
                 });
-
+    
                 const result = await response.json();
                 const summariesContainer = document.getElementById('summariesContainer');
                 summariesContainer.innerHTML = ''; // Clear previous summaries
-
+    
                 if (result.summaries) {
                     result.summaries.forEach((summary, index) => {
+                        const formattedSummary = formatSummary(summary);
                         const summaryDiv = document.createElement('div');
                         summaryDiv.classList.add('summary');
-                        summaryDiv.innerHTML = `<h3>Summary for PDF ${index + 1}:</h3><p>${summary}</p>`;
+                        summaryDiv.innerHTML = `<h3>Summary for PDF ${index + 1}:</h3><p>${formattedSummary}</p>`;
                         summariesContainer.appendChild(summaryDiv);
                     });
                 } else {
@@ -86,6 +204,28 @@
                 document.getElementById('summariesContainer').innerText = "An error occurred: " + error.message;
             }
         });
+    
+        // Function to format summary text (replaces markdown-like syntax with proper HTML formatting)
+            function formatSummary(summary) {
+        // Remove single standalone '#' symbols (for erroneous extra hashtags)
+        let formattedText = summary.replace(/^\s*#\s*$/gm, '');
+
+        // Convert bold markdown syntax (e.g., **bold**) to HTML <strong>
+        formattedText = formattedText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+
+        // Convert headings (###, ####) to <h3>, <h4> etc.
+        formattedText = formattedText.replace(/#### (.*?)(\n|$)/g, '<h4>$1</h4>');
+        formattedText = formattedText.replace(/### (.*?)(\n|$)/g, '<h3>$1</h3>');
+
+        // Replace new lines with <br> for HTML display
+        formattedText = formattedText.replace(/\n/g, '<br>');
+
+        return formattedText;
+    }
+
+
     </script>
+    
 </body>
 </html>
+
