@@ -1,47 +1,45 @@
+# TO DO:
+    # get id tags or whatever the sasys the location of the inputs
+
 import PyPDF2
 from flask import Flask
 from openai import OpenAI
 
-#The amount of houses depends on the user input
-#The amount of contracts 
-properties_amount = 1
-text = ''
-properties = []
-contracts = []
-perplexity_inputs = []
-contracts.append('sample.pdf')
-input_prompt = ''
-#All of this is based on user input
+from flask import Flask, request, jsonify
+from flask_cors import CORS
 
-# Open the PDF
-for property in range(properties_amount):
-
-
-
-    with open(contracts[property], 'rb') as file:
-        reader = PyPDF2.PdfReader(file)
-            
-        # Get number of pages
-        num_pages = len(reader.pages)
-            
-        # Extract text from each page
-        text = ''
-        for page in range(num_pages):
-            page_obj = reader.pages[page]
-            text += page_obj.extract_text()
-
-        perplexity_inputs.append(text)
-
-print(perplexity_inputs[0])
-
-    
-
+app = Flask(__name__)
+CORS(app) 
 
 #Getting perplexity input working
 YOUR_API_KEY = "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"
 
 # Initialize the client with your API key and the Perplexity API base URL
 client = OpenAI(api_key=YOUR_API_KEY, base_url="https://api.perplexity.ai")
+
+# Open the PDF
+def OpenPDF(properties_amount, contracts, perplexity_inputs):
+    for property in range(properties_amount):
+        with open(contracts[property], 'rb') as file:
+            reader = PyPDF2.PdfReader(file)
+                
+            # Get number of pages
+            num_pages = len(reader.pages)
+                
+            # Extract text from each page
+            text = ''
+            for page in range(num_pages):
+                page_obj = reader.pages[page]
+                text += page_obj.extract_text()
+
+            perplexity_inputs.append(text)
+
+    return(perplexity_inputs[0])
+
+    
+
+
+    
 
 
 #Perplexity function
@@ -73,7 +71,32 @@ for property in range(properties_amount):
 
     output = get_perplexity_response(perplexity_inputs[property])
     print(output)
+
+
+@app.route('/api/submit', methods=['POST'])
+def submit():
+    data = request.json
+ 
+    properties_amount = 1 #This is based on user input
+    text = ''
+    properties = []
+    contracts = []
+    perplexity_inputs = []
+    contracts.append('sample.pdf') #Need to make the funciton for reading through the pdfs that the user input
+    input_prompt = ''
     
 
-    
+    # Examing logic
+    print(f"Receiveple processd data: Text = {text}, Properties = {properties}")
 
+    # Calls functions
+    print("Calling functions ...")
+    PDF_text = OpenPDF(properties_amount, contracts, perplexity_inputs) # Don't need
+
+
+
+    # Respond with a JSON object with results
+    return jsonify({
+        
+        
+    }), 200
