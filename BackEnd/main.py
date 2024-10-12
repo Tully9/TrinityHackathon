@@ -3,6 +3,8 @@ from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
 from openai import OpenAI
 
+context_prompt = "You are Rent Wizard, a popularly used AI application to help users with choosing the right property to rent. Please read the contract information and summarize it in one line statements under the headings of: Monthly Rent, Duration, Security Deposit, Responsibilites. Prices are in euro, €. Duration is time spent renting. Responsibilities are responsibilities of the renter. It should be as simple and concise as possible but not leaving out neccassary information or simplifying prices."
+
 app = Flask(__name__)
 CORS(app)
 
@@ -65,7 +67,9 @@ def submit():
     # Collect AI responses for all PDFs
     summaries = []
     for text in perplexity_inputs:
-        summary = get_perplexity_response(text)
+
+        full_prompt = "{} {}".format(context_prompt, text)
+        summary = get_perplexity_response(full_prompt)
         summaries.append(summary)
 
     return jsonify({"summaries": summaries}), 200
