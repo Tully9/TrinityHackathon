@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Upload PDF for Analysis</title>
     <style>
-        * {
+              * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
@@ -21,7 +21,7 @@
 
         h1 {
             font-size: 2rem;
-            color: #4a90e2;
+            color: #7559af;
             text-align: center;
             margin-bottom: 30px;
         }
@@ -52,21 +52,25 @@
             margin-bottom: 15px;
         }
 
-        button[type="submit"] {
+        button[type="submit"], button[type="button"] {
             display: block;
             width: 100%;
             padding: 12px;
-            background-color: #4a90e2;
+            background-color: #bca1f4;
             color: white;
             border: none;
-            border-radius: 5px;
+            border-radius: 8px;
             font-size: 1.2rem;
             cursor: pointer;
-            transition: background-color 0.3s ease;
+            transition: background-color 0.3s ease, transform 0.1s ease;
         }
 
-        button[type="submit"]:hover {
-            background-color: #357abd;
+        button[type="submit"]:hover, button[type="button"]:hover {
+            background-color: #9e89df;
+        }
+
+        button[type="submit"]:active, button[type="button"]:active {
+            transform: scale(0.98);
         }
 
         .output {
@@ -81,7 +85,7 @@
 
         h2 {
             font-size: 1.5rem;
-            color: #4a90e2;
+            color: #bca1f4;
             margin-bottom: 15px;
         }
 
@@ -89,7 +93,7 @@
             background-color: #f1f7ff;
             padding: 15px;
             margin-top: 15px;
-            border-left: 4px solid #4a90e2;
+            border-left: 4px solid #bca1f4;
             border-radius: 5px;
         }
 
@@ -106,12 +110,12 @@
     </style>
 </head>
 <body>
-    <h1>Rent Wizard - Upload PDF Contracts</h1>
+    <h1>Rent Wizard - Making Rental Contracts Easy</h1>
 
     <form id="numberForm">
-        <label for="pdfCount">Choose the number of PDFs to upload (1-10):</label>
+        <label for="pdfCount">Choose the number of rental contract PDFs to upload:</label>
         <input type="number" id="pdfCount" name="pdfCount" min="1" max="10" required>
-        <button type="button" id="generateFieldsBtn">Generate Upload Fields</button>
+        <button type="button" id="generateFieldsBtn">Confirm</button>
     </form>
 
     <form id="pdfForm" enctype="multipart/form-data" style="display: none;">
@@ -120,7 +124,7 @@
     </form>
 
     <div id="response" class="output">
-        <h2>AI Summaries:</h2>
+        <h2>Contract Summaries:</h2>
         <div id="summariesContainer"></div>
     </div>
 
@@ -206,26 +210,15 @@
         });
     
         // Function to format summary text (replaces markdown-like syntax with proper HTML formatting)
-            function formatSummary(summary) {
-        // Remove single standalone '#' symbols (for erroneous extra hashtags)
-        let formattedText = summary.replace(/^\s*#\s*$/gm, '');
-
-        // Convert bold markdown syntax (e.g., **bold**) to HTML <strong>
-        formattedText = formattedText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-
-        // Convert headings (###, ####) to <h3>, <h4> etc.
-        formattedText = formattedText.replace(/#### (.*?)(\n|$)/g, '<h4>$1</h4>');
-        formattedText = formattedText.replace(/### (.*?)(\n|$)/g, '<h3>$1</h3>');
-
-        // Replace new lines with <br> for HTML display
-        formattedText = formattedText.replace(/\n/g, '<br>');
-
-        return formattedText;
-    }
-
-
+        function formatSummary(summary) {
+            let formattedText = summary.replace(/^\s*#\s*$/gm, '');
+            formattedText = formattedText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            formattedText = formattedText.replace(/#### (.*?)(\n|$)/g, '<h4>$1</h4>');
+            formattedText = formattedText.replace(/### (.*?)(\n|$)/g, '<h3>$1</h3>');
+            formattedText = formattedText.replace(/\n/g, '<br>');
+            return formattedText;
+        }
     </script>
     
 </body>
 </html>
-
